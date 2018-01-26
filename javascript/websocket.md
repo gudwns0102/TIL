@@ -90,3 +90,13 @@ Execute server and react-native project, then you can see 'connection: true' on 
 
 
 You can set actions for given event from opposite side. 
+
+## React Native + Socket.io
+
+You can also use socket.io to make socket protocol communication. There is nothing significant difference between websocket, 
+but at client side, you should install socket.io-client, not socket.io(in my opinion). Also, if you get stuck when using localhost, 
+consider to seperate server and client. These are the docs that I saw
+
+https://socket.io/get-started/chat/
+https://facebook.github.io/react-native/docs/network.html
+https://hackernoon.com/a-simple-messaging-app-with-react-native-and-socket-io-e1cae3df7bda
