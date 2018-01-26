@@ -23,7 +23,7 @@ import url from 'url';
 import WebSocket from 'ws';
 
 const server = http.createServer(express());
-const wss = new WebSocket.Server({server});
+const wss = new WebSocket.Server({server, {pingTimeout: 30000}});
 
 wss.on('connection', function(ws, req){
   console.log('connected!')
