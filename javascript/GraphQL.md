@@ -332,3 +332,114 @@ Connected
   { postID: 2, postBody: 'This is test!' } ]
 [ { postBody: 'This is test!' } ]
 ```
+다음은 완성된 index.js 내용이다.
+```javascript
+import mongoose from 'mongoose';
+import {
+  graphql,
+  GraphQLObjectType,
+  GraphQLNonNull,
+  GraphQLSchema,
+  GraphQLString,
+  GraphQLList,
+  GraphQLInt,
+  GraphQLBoolean,
+  buildSchema
+} from 'graphql';
+
+mongoose.connect('mongodb://localhost:27017/test')
+
+var db = mongoose.connection;
+db.on('error', ()=> {console.log( 'FAIL')})
+db.once('open', () => {
+ console.log( 'Connected')
+})
+
+var mongoose_schema = new mongoose.Schema({
+  postID: {type: Number, required: true},
+  postBody: {type: String, required: true}
+}, {collection: 'post'});
+
+var Post = mongoose.model('post', mongoose_schema);
+
+var postType = new GraphQLObjectType({
+  name: 'post',
+  fields: () => ({
+    postID: {
+      type: GraphQLInt
+    },
+    postBody: {
+      type: GraphQLString
+    }
+  })
+})
+
+function getProjection (fieldASTs) {
+  return fieldASTs.fieldNodes[0].selectionSet.selections.reduce((projections, selection) => {
+    projections[selection.name.value] = true;
+    return projections;
+  }, {});
+}
+
+var postSchema = new GraphQLSchema({
+  query: new GraphQLObjectType({
+    name: 'query',
+    fields: {
+      
+      post: {
+        type: new GraphQLList(postType),
+        args: {
+          postID: {
+            name: 'postID',
+            type: GraphQLInt,
+          }
+        },
+        resolve: (source, args, context, fieldASTs) => {
+          var projections = getProjection(fieldASTs);
+          var key = Object.keys(args).length == 0 ? {} : {postID: args.postID}
+          var foundPost = new Promise((resolve,reject)=> {
+            Post.find(key, projections, (err, post) => {
+              err ? reject(err) : resolve(post)
+            })
+          })
+          
+          return foundPost;
+        }
+      },
+    }
+  }),
+  mutation: new GraphQLObjectType({
+    name: 'mutation',
+    fields:{
+      message: {
+        type: GraphQLString,
+        resolve: () => {
+          return 'This is mutation!'
+        }
+      }
+    }
+  })
+})
+
+var myQuery = 
+`
+query { 
+  post {
+    postID
+    postBody
+  }
+}
+`
+
+var myQuery2 = 
+`
+{
+  post(postID: 2) {
+    postBody
+  }
+}
+`
+
+graphql(postSchema, myQuery).then(result => console.log(result.data.post));
+graphql(postSchema, myQuery2).then(result => console.log(result.data.post));
+```
