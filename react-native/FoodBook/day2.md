@@ -25,44 +25,20 @@
   `npm install --save react-native-fbsdk`
 
   2. Change android/build.gradle like this
-
+  
+  if you see error like 'Could not find com.android.support:appcompat-v7:27.0.2.',
+  follow it 
+  
   ```
-  buildscript {
-    repositories {
-        jcenter()
-        maven {
-            url 'https://maven.google.com/'
+  repositories {
+        mavenLocal()
+        mavenCentral()
+        maven {                                  // <-- Add this
+            url 'https://maven.google.com/' 
             name 'Google'
         }
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:3.0.1'
-
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
-    }
-}
-
-allprojects {
-    repositories {
-        mavenLocal()
-        jcenter()
-        configurations.all {
-          resolutionStrategy {
-              force 'com.facebook.android:facebook-android-sdk:4.28.0'
-          }
-        }
-        maven {
-            url "https://maven.google.com"
-        }
-        maven {
-            // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
-            url "$rootDir/../node_modules/react-native/android"
-        }
-      }
-      
-  }
-```
+    } 
+  ```
 
 3. Change sdk version and build tools version in android/app/build.gradle like this
 
