@@ -36,7 +36,7 @@
         maven {                                  // <-- Add this
             url 'https://maven.google.com/' 
             name 'Google'
-        }
+        }  
     } 
   ```
 
